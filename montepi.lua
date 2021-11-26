@@ -1,5 +1,6 @@
 local SDL = require "SDL"
 SDL.ttf = require "SDL.ttf"
+-- local argparse = require "argparse"
 
 function unwrap(ret_err)
     ret, err = ret_err
@@ -35,6 +36,27 @@ local last_time_pi_string = SDL.getTicks()
 local pi_string_draw_interval = 100
 local texture = nil
 
+function create_point_routine()
+    while true do
+        local point = { x = math.random() - 0.5, y = math.random() - 0.5 }
+        local is_in = math.sqrt(point.x * point.x + point.y * point.y) < 0.5
+        point.x = math.floor(point.x * width + width / 2)
+        point.y = math.floor(point.y * height + height / 2)
+        coroutine.yield(points_in, points_out)
+        if is_in then
+            table.insert(points_in, point)
+        else
+            table.insert(points_out, point)
+        end
+    end
+end
+
+local coroutines = {}
+local coroutine_num = 400
+for n = 1, coroutine_num do
+    table.insert(coroutines, coroutine.create(create_point_routine))
+end
+
 local running = true
 while running do
     for e in SDL.pollEvent() do
@@ -47,23 +69,14 @@ while running do
             end
         end
     end
-    local point = { x = math.random() - 0.5, y = math.random() - 0.5 }
-    if math.sqrt(point.x * point.x + point.y * point.y) < 0.5 then
-        table.insert(points_in, point)
-    else
-        table.insert(points_out, point)
+    for i = 1, #coroutines do
+        coroutine.resume(coroutines[i], points_in, points_out)
     end
-    -- print(#points_in, #points_out)
-    -- print(#points_in / #points_out)
-    point.x = math.floor(point.x * width + width / 2)
-    point.y = math.floor(point.y * height + height / 2)
-    -- print(point.x, point.y)
-
     renderer:setDrawColor(0xff222222)
     renderer:clear()
-    renderer:setDrawColor(0xffff00ff)
+    renderer:setDrawColor(0xffaa00ee)
     renderer:drawPoints(points_in)
-    renderer:setDrawColor(0xff00ffff)
+    renderer:setDrawColor(0xff00aaee)
     renderer:drawPoints(points_out)
 
     local current_time = SDL.getTicks()
