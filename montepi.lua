@@ -1,6 +1,23 @@
 local SDL = require "SDL"
 SDL.ttf = require "SDL.ttf"
--- local argparse = require "argparse"
+local argparse = require "argparse"
+
+local parser = argparse("montepi", "Monte Carlo estimate of pi")
+parser:option("-c --coroutines-num", "Number of coroutines")
+    :default(20)
+    :convert(tonumber)
+    :args(1)
+parser:option("-w --width", "Window width in pixel")
+    :default(600)
+    :convert(tonumber)
+    :args(1)
+parser:option("-f --font", "Path to the font file to display text")
+    :default("/usr/share/fonts/TTF/FiraMono-Regular.ttf")
+    :args(1)
+local args = parser:parse()
+
+local width  = args.width
+local height = width
 
 function unwrap(ret_err)
     ret, err = ret_err
@@ -13,19 +30,16 @@ end
 unwrap(SDL.init { SDL.flags.Video })
 unwrap(SDL.ttf.init())
 
-local width  = 600
-local height = width
 
 local window = unwrap(SDL.createWindow {
     title  = "TSP",
     width  = width,
     height = height,
-    -- flags  = SDL.window.Resizable,
 })
 
 local renderer = unwrap(SDL.createRenderer(window, 0, {}))
 
-local font = unwrap(SDL.ttf.open("/usr/share/fonts/TTF/FiraMono-Regular.ttf", 28))
+local font = unwrap(SDL.ttf.open(args.font, 28))
 
 local points_in = {}
 local points_out = {}
@@ -52,7 +66,7 @@ function create_point_routine()
 end
 
 local coroutines = {}
-local coroutine_num = 400
+local coroutine_num = args.coroutines_num
 for n = 1, coroutine_num do
     table.insert(coroutines, coroutine.create(create_point_routine))
 end
