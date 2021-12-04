@@ -5,10 +5,13 @@
 ## Usage
 
 ```
-$ luarocks install lua-sdl2 argparse
+$ luarocks install lua-sdl2 
+$ luarocks install argparse
 $ lua montepi.lua -h
 $ lua montepi.lua
 ```
+
+> note: `lua-sdl2` needs `SDL2_ttf`, `SDL2_mixer`, `SDL2_net` and `SDL2_image`.
 
 ## Method
 
