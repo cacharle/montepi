@@ -32,7 +32,7 @@ unwrap(SDL.ttf.init())
 
 
 local window = unwrap(SDL.createWindow {
-    title  = "TSP",
+    title  = "Monte Pi",
     width  = width,
     height = height,
 })
